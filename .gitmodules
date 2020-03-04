@@ -1,0 +1,3 @@
+[submodule "le-scan"]
+	path = le-scan
+	url = https://github.com/ScottHelme/le-scan.git
