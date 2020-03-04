@@ -12,8 +12,10 @@ Sehr geehrte Kontaktperson der domain <{domainRecord}>
 
 Ich möchte Sie darüber informieren, dass Ihr Zertifikat für die Domäne <{domainRecord}> vorraussichtlich heute Abend um 20:00 UTC (21:00 MEZ) widerrufen wird.
 
-TODO ADD STUFF HERE
-
+Sie sollten das Zertifikat neu ausstellen.
+Weitere Infos dazu: https://www.golem.de/news/tls-let-s-encrypt-muss-drei-millionen-zertifikate-zurueckziehen-2003-146999.html
+S/N: <{certSN}>
+Domain: <{domainRecord}>
 """
 
 def getDomainInfo(tld):
