@@ -1,4 +1,5 @@
-from smtplib import SMTP
+from smtplib import SMTP_SSL
+import ssl
 import email
 import csv
 import argparse
@@ -6,8 +7,16 @@ import os
 from pathlib import Path
 import json
 
+template = """
+Sehr geehrte Kontaktperson der domain <{domainRecord}>
+
+Ich möchte Sie darüber informieren, dass Ihr Zertifikat für die Domäne <{domainRecord}> vorraussichtlich heute Abend um 20:00 UTC (21:00 MEZ) widerrufen wird.
+
+TODO ADD STUFF HERE
+
+"""
+
 def getDomainInfo(tld):
-    global domain
     tldPath = os.path.join((Path(os.path.realpath(__file__))).parent, "le-scan", "results", "{}.txt".format(tld))
     if (os.path.exists(tldPath)):
         with open(tldPath) as csvFile:
@@ -15,20 +24,31 @@ def getDomainInfo(tld):
             domain = {rows[0]:rows[1] for rows in rd}
         return domain
 
-def getAdmin(domain):
-    pass
+def getAdminInfo():
+    adminInfoPath = os.path.join((Path(os.path.realpath(__file__))).parent, "admininfo.json")
+    if (os.path.exists(adminInfoPath)):
+        with open(adminInfoPath) as adminInfoFile:
+            return json.load(adminInfoFile)
 
 def sendMails(domain, conf):
-    pass
+    with open(os.path.join((Path(os.path.realpath(__file__))).parent, "mail.json")) as mailconfFile:
+        mailConf = json.load(mailconfFile)
+
+    context = ssl.create_default_context()
+    with SMTP_SSL(host=mailConf.smtpServer, port=mailConf.port, context=context) as server:
+        server.user = mailConf.username
+        server.password = mailConf.password
+        server.auth_login()
+    # TODO hier weitermachen
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--tld', type=str, help="tld")
-    parser.add_argument('--mailconf', type=str, help="path to mailconfig")
-    parser.add_argument('--domaininfo', type=str, help="path to domaininfo")
     args = parser.parse_args()
     print(args)
 
     domain = getDomainInfo(args.tld)
+    contacts = getAdminInfo()
     print(domain)
+    print(contacts)
