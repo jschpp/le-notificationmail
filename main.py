@@ -8,14 +8,26 @@ from pathlib import Path
 import json
 
 template = """
-Sehr geehrte Kontaktperson der domain <{domainRecord}>
+Sehr geehrte Kontaktperson der Webseite <{domainRecord}>
 
-Ich möchte Sie darüber informieren, dass Ihr Zertifikat für die Domäne <{domainRecord}> vorraussichtlich heute Abend um 20:00 UTC (21:00 MEZ) widerrufen wird.
+Ich möchte Sie darüber informieren, dass Ihr Zertifikat für die Webseite <{domainRecord}> vorraussichtlich heute Abend um 20:00 UTC (21:00 MEZ) widerrufen wird.
 
 Sie sollten das Zertifikat neu ausstellen.
-Weitere Infos dazu: https://www.golem.de/news/tls-let-s-encrypt-muss-drei-millionen-zertifikate-zurueckziehen-2003-146999.html
-S/N: <{certSN}>
+
+Weitere Infos dazu:
+https://www.golem.de/news/tls-let-s-encrypt-muss-drei-millionen-zertifikate-zurueckziehen-2003-146999.html
+https://www.heise.de/security/meldung/Achtung-Let-s-Encrypt-macht-heute-nacht-3-Millionen-Zertifikate-ungueltig-4676017.html
+
+Betroffen ist folgendes Zertifikat:
+S/N: <{sn}>
 Domain: <{domainRecord}>
+
+Sie können selbst Überprüfen, ob Ihre Website betroffen ist:
+https://checkhost.unboundtest.com/
+
+Mit freundlichen Grüßen
+
+{sender}
 """
 
 def getDomainInfo(tld):
@@ -30,27 +42,46 @@ def getAdminInfo():
     adminInfoPath = os.path.join((Path(os.path.realpath(__file__))).parent, "admininfo.json")
     if (os.path.exists(adminInfoPath)):
         with open(adminInfoPath) as adminInfoFile:
-            return json.load(adminInfoFile)
+            return dict(json.load(adminInfoFile))
 
-def sendMails(domain, conf):
+def sendMails(domainInfo, contacts, domain=""):
     with open(os.path.join((Path(os.path.realpath(__file__))).parent, "mail.json")) as mailconfFile:
         mailConf = json.load(mailconfFile)
 
     context = ssl.create_default_context()
-    with SMTP_SSL(host=mailConf.smtpServer, port=mailConf.port, context=context) as server:
+    with SMTP_SSL(host=mailConf["smtpServer"], port=mailConf["port"], context=context) as server:
         server.user = mailConf.username
         server.password = mailConf.password
         server.auth_login()
-    # TODO hier weitermachen
+        if (len(domain) == 0):
+            for domain, contactAddress in contacts:
+                server.send_message(
+                    msg=template.format(
+                        domainRecord=domain,
+                        sn=domainInfo[domain],
+                        sender=mailConf["sender"]
+                    ),
+                    to_addrs=contactAddress,
+                    from_addr=mailConf["senderMail"]
+                )
+        else:
+            server.send_message(
+                msg=template.format(
+                    domainRecord=domain,
+                    sn=domainInfo[domain],
+                    sender=mailConf["sender"]
+                ),
+                to_addrs=contacts[domain],
+                from_addr=mailConf["senderMail"]
+            )
+
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--tld', type=str, help="tld")
     args = parser.parse_args()
-    print(args)
 
     domain = getDomainInfo(args.tld)
     contacts = getAdminInfo()
-    print(domain)
-    print(contacts)
+    sendMails(domain, contacts)

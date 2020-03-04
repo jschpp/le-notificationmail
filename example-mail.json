@@ -2,5 +2,7 @@
     "smtpServer": "smtpServer.tld",
     "username": "username",
     "password": "password",
-    "port": 465
+    "port": 465,
+    "sender": "name",
+    "senderMail": "name@blubb.tld"
 }
