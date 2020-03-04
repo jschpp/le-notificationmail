@@ -12,15 +12,15 @@ Sehr geehrte Kontaktperson der Webseite <{domainRecord}>
 
 Ich möchte Sie darüber informieren, dass Ihr Zertifikat für die Webseite <{domainRecord}> vorraussichtlich heute Abend um 20:00 UTC (21:00 MEZ) widerrufen wird.
 
-Hintergrund ist ein Fehler seitens Let's Encrypt.
-Heise schreibt darüber: https://www.heise.de/security/meldung/Achtung-Let-s-Encrypt-macht-heute-nacht-3-Millionen-Zertifikate-ungueltig-4676017.html
+Sie sollten das Zertifikat neu ausstellen.
 
-Sie sind bei einer automatischen Überprüfung aufgefallen.
+Weitere Infos dazu:
+https://www.golem.de/news/tls-let-s-encrypt-muss-drei-millionen-zertifikate-zurueckziehen-2003-146999.html
+https://www.heise.de/security/meldung/Achtung-Let-s-Encrypt-macht-heute-nacht-3-Millionen-Zertifikate-ungueltig-4676017.html
 
 Betroffen ist folgendes Zertifikat:
-
-Webseite: {domainRecord}
-Seriennummer: {sn}
+S/N: <{sn}>
+Domain: <{domainRecord}>
 
 Sie können selbst Überprüfen, ob Ihre Website betroffen ist:
 https://checkhost.unboundtest.com/
